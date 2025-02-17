@@ -32,6 +32,22 @@
             color: #1AC06F !important;
             /* Light gray color */
         }
+
+        /* Responsive table adjustments */
+        @media (max-width: 768px) {
+            table {
+                font-size: 14px;
+                /* Reduce font size for mobile */
+            }
+
+            th,
+            td {
+                padding: 8px;
+                /* Reduce padding */
+                white-space: nowrap;
+                /* Prevent text from wrapping */
+            }
+        }
     </style>
     <script>
         // Google Sheets CSV link
@@ -74,7 +90,7 @@
                     let link = document.createElement("a");
                     link.href = row["下载"];
                     link.target = "_blank"; // Open in a new tab
-                    link.classList.add("text-success", "topic-link"); // Add class to remove underline
+                    link.classList.add("topic-link"); // Apply styling class
                     link.textContent = row["主题"] || "—";
                     topicTd.appendChild(link);
                 } else {
@@ -103,7 +119,7 @@
 <body>
     <div class="container my-4">
         <h2 class="text-center">小组聚会时间表</h2>
-        <div class="table-responsive">
+        <div class="table-container"> <!-- Makes table horizontally scrollable on mobile -->
             <table class="table table-bordered table-striped" id="data-table">
                 <thead>
                     <tr>
