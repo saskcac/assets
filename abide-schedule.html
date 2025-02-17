@@ -18,6 +18,20 @@
             background-color: #65CC01 !important;
             color: black !important;
         }
+
+        /* Remove underline from links in the "主题" column */
+        .topic-link {
+            text-decoration: none !important;
+            color: #1AC06F !important;
+            /* Light gray color */
+        }
+
+        /* Optional: Change color when hovering over links */
+        .topic-link:hover {
+            text-decoration: underline !important;
+            color: #1AC06F !important;
+            /* Light gray color */
+        }
     </style>
     <script>
         // Google Sheets CSV link
@@ -55,7 +69,17 @@
                 dateTd.textContent = row["日期"] || "—";
 
                 let topicTd = document.createElement("td");
-                topicTd.innerHTML = row["主题"] ? `<span class="text-success">${row["主题"]}</span>` : "—";
+                if (row["下载"]) {
+                    // If there's a URL, make "主题" a clickable link
+                    let link = document.createElement("a");
+                    link.href = row["下载"];
+                    link.target = "_blank"; // Open in a new tab
+                    link.classList.add("text-success", "topic-link"); // Add class to remove underline
+                    link.textContent = row["主题"] || "—";
+                    topicTd.appendChild(link);
+                } else {
+                    topicTd.textContent = row["主题"] || "—";
+                }
 
                 let locationTd = document.createElement("td");
                 locationTd.textContent = row["地点"] || "—";
