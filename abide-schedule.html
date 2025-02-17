@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>小组聚会时间表</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <style>
@@ -58,6 +59,12 @@
             top: -4px;
             right: 12px;
         }
+
+        /* Past events styling */
+        .past-event {
+            background-color: #EDEDED !important;
+            border-left: 5px solid #B0B0B0 !important;
+        }
     </style>
 </head>
 
@@ -84,7 +91,7 @@
                 return;
             }
 
-            container.innerHTML = "";
+            container.innerHTML = ""; // Clear existing content
 
             let today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -109,18 +116,26 @@
                 }
             });
 
+            let pastEventsContainer = document.createElement("div");
+            pastEventsContainer.id = "past-events";
+            pastEventsContainer.classList.add("collapse");
+
             // Render the schedule
             data.forEach((row, index) => {
                 let div = document.createElement("div");
                 div.classList.add("schedule-item");
 
-                if (index === upcomingEventIndex) {
+                let rawDate = new Date(row["日期"]);
+                let formattedDate = !isNaN(rawDate) ? dateFormatter.format(rawDate) : row["日期"];
+                let isPastEvent = rawDate < today;
+
+                if (isPastEvent) {
+                    div.classList.add("past-event");
+                } else if (index === upcomingEventIndex) {
                     div.classList.add("upcoming-event");
                 }
 
-                let rawDate = new Date(row["日期"]);
-                let formattedDate = !isNaN(rawDate) ? dateFormatter.format(rawDate) : row["日期"];
-
+                // Create date and topic in one line
                 let headerElement = document.createElement("p");
                 headerElement.classList.add("schedule-header");
 
@@ -156,8 +171,24 @@
                 div.appendChild(locationElement);
                 div.appendChild(leaderElement);
 
-                container.appendChild(div);
+                if (isPastEvent) {
+                    pastEventsContainer.appendChild(div);
+                } else {
+                    container.appendChild(div);
+                }
             });
+
+            // Add past events collapse button
+            let toggleButton = document.createElement("button");
+            toggleButton.textContent = "Show Past Events";
+            toggleButton.classList.add("btn", "btn-outline-secondary", "mb-3");
+            toggleButton.setAttribute("data-bs-toggle", "collapse");
+            toggleButton.setAttribute("data-bs-target", "#past-events");
+            toggleButton.setAttribute("aria-expanded", "false");
+            toggleButton.setAttribute("aria-controls", "past-events");
+
+            container.appendChild(toggleButton);
+            container.appendChild(pastEventsContainer);
         }
 
         function fetchAndRenderSchedule() {
