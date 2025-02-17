@@ -90,6 +90,13 @@
             let upcomingEventIndex = -1;
             let upcomingEventDate = null;
 
+            // Create a date formatter for "Feb 21, 2025" format
+            const dateFormatter = new Intl.DateTimeFormat("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            });
+
             // Find the next upcoming event
             data.forEach((row, index) => {
                 let eventDate = new Date(row["日期"]);
@@ -110,12 +117,16 @@
                     div.classList.add("upcoming-event"); // Highlight the next event
                 }
 
+                // Format date
+                let rawDate = new Date(row["日期"]);
+                let formattedDate = !isNaN(rawDate) ? dateFormatter.format(rawDate) : row["日期"];
+
                 // Create date and topic in one line
                 let headerElement = document.createElement("p");
                 headerElement.classList.add("schedule-header");
 
                 let dateSpan = document.createElement("span");
-                dateSpan.textContent = row["日期"] ? `${row["日期"]} - ` : "— ";
+                dateSpan.textContent = formattedDate ? `${formattedDate} - ` : "— ";
 
                 let topicSpan = document.createElement("span");
                 if (row["下载"]) {
@@ -132,6 +143,9 @@
                 headerElement.appendChild(dateSpan);
                 headerElement.appendChild(topicSpan);
 
+                let timeElement = document.createElement("p");
+                timeElement.innerHTML = `<strong>时间:</strong> ${row["时间"] || "—"}`;
+
                 let locationElement = document.createElement("p");
                 locationElement.innerHTML = `<strong>地点:</strong> ${row["地点"] || "—"}`;
 
@@ -139,6 +153,7 @@
                 leaderElement.innerHTML = `<strong>带领:</strong> ${row["带领"] || "—"}`;
 
                 div.appendChild(headerElement);
+                div.appendChild(timeElement);
                 div.appendChild(locationElement);
                 div.appendChild(leaderElement);
 
