@@ -139,10 +139,10 @@
                     div.classList.add("upcoming-event");
                 }
 
-                // Date as the header
+                // Display date + 备注 (if available)
                 let headerElement = document.createElement("p");
                 headerElement.classList.add("schedule-header");
-                headerElement.textContent = formattedDate;
+                headerElement.textContent = row["备注"] ? `${formattedDate} - ${row["备注"]}` : formattedDate;
 
                 let worshipElement = document.createElement("p");
                 worshipElement.innerHTML = `🎵 <strong>诗歌敬拜:</strong> ${row["诗歌敬拜"] || "—"}`;
