@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>5L2F 服事时间表</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        .schedule-item {
+            background-color: #F8F9FA;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .schedule-header {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .upcoming-event {
+            background-color: #FFF3CD !important;
+            border-left: 5px solid #FFC107 !important;
+        }
+
+        .past-event {
+            background-color: #EDEDED !important;
+            border-left: 5px solid #B0B0B0 !important;
+        }
+
+        /* Edit button styling */
+        .edit-button {
+            position: absolute;
+            top: -4px;
+            right: 12px;
+        }
+
+        .loading-spinner {
+            display: none;
+            justify-content: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+        }
+
+        .loading-spinner .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container my-4 position-relative">
+        <h2 class="text-left">5L2F 服事时间表</h2>
+
+        <a href="https://docs.google.com/spreadsheets/d/1uMy_HzjvvpqvmLFw-XMijiCjIr_p4JQ4DWvwgdkmduo/edit"
+            target="_blank" class="btn btn-outline-primary edit-button">
+            <i class="bi bi-pencil-square"></i> 编辑
+        </a>
+
+        <div id="schedule-container">
+            <!-- Events will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <script>
+        function showLoadingSpinner() {
+            document.getElementById("loadingSpinner").style.display = "flex";
+        }
+
+        function hideLoadingSpinner() {
+            document.getElementById("loadingSpinner").style.display = "none";
+        }
+
+        function generateSchedule(data) {
+            let container = document.querySelector("#schedule-container");
+            if (!container) {
+                console.error("Schedule container not found");
+                return;
+            }
+
+            container.innerHTML = "";
+
+            let today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let upcomingEventIndex = -1;
+            let upcomingEventDate = null;
+
+            const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            });
+
+            // Identify the next upcoming event
+            data.forEach((row, index) => {
+                let eventDate = new Date(row["日期"]);
+                if (!isNaN(eventDate) && eventDate >= today) {
+                    if (upcomingEventIndex === -1 || eventDate < upcomingEventDate) {
+                        upcomingEventIndex = index;
+                        upcomingEventDate = eventDate;
+                    }
+                }
+            });
+
+            let pastEventsContainer = document.createElement("div");
+            pastEventsContainer.id = "past-events";
+            pastEventsContainer.classList.add("collapse");
+
+            data.forEach((row, index) => {
+                let div = document.createElement("div");
+                div.classList.add("schedule-item");
+
+                let rawDate = new Date(row["日期"]);
+                let formattedDate = !isNaN(rawDate) ? dateFormatter.format(rawDate) : row["日期"];
+                let isPastEvent = rawDate < today;
+
+                if (isPastEvent) {
+                    div.classList.add("past-event");
+                } else if (index === upcomingEventIndex) {
+                    div.classList.add("upcoming-event");
+                }
+
+                // Date as the header
+                let headerElement = document.createElement("p");
+                headerElement.classList.add("schedule-header");
+                headerElement.textContent = formattedDate;
+
+                let worshipElement = document.createElement("p");
+                worshipElement.innerHTML = `🎵 <strong>诗歌敬拜:</strong> ${row["诗歌敬拜"] || "—"}`;
+
+                let welcomeElement = document.createElement("p");
+                welcomeElement.innerHTML = `📢 <strong>报告欢迎:</strong> ${row["报告欢迎"] || "—"}`;
+
+                let mealTeamElement = document.createElement("p");
+                mealTeamElement.innerHTML = `🍽️ <strong>饭食团队:</strong> ${row["饭食团队"] || "—"}`;
+
+                let childHelperElement = document.createElement("p");
+                childHelperElement.innerHTML = `🧒 <strong>儿童帮手:</strong> ${row["儿童帮手"] || "—"}`;
+
+                let childStoryElement = document.createElement("p");
+                childStoryElement.innerHTML = `📖 <strong>儿童故事:</strong> ${row["儿童故事"] || "—"}`;
+
+                let cleanupElement = document.createElement("p");
+                cleanupElement.innerHTML = `🧹 <strong>饭后卫生:</strong> ${row["饭后卫生"] || "—"}`;
+
+                let discussionGuideElement = document.createElement("p");
+                if (row["讨论指南版"]) {
+                    discussionGuideElement.innerHTML = `<strong>讨论指南版:</strong> <a href="${row["讨论指南版"]}" target="_blank">点击查看</a>`;
+                }
+
+                let memberGuideElement = document.createElement("p");
+                if (row["组员版"]) {
+                    memberGuideElement.innerHTML = `<strong>组员版:</strong> <a href="${row["组员版"]}" target="_blank">点击查看</a>`;
+                }
+
+                div.appendChild(headerElement);
+                div.appendChild(worshipElement);
+                div.appendChild(welcomeElement);
+                div.appendChild(mealTeamElement);
+                div.appendChild(childHelperElement);
+                div.appendChild(childStoryElement);
+                div.appendChild(cleanupElement);
+                if (row["讨论指南版"]) div.appendChild(discussionGuideElement);
+                if (row["组员版"]) div.appendChild(memberGuideElement);
+
+                if (isPastEvent) {
+                    pastEventsContainer.appendChild(div);
+                } else {
+                    container.appendChild(div);
+                }
+            });
+
+            let toggleButton = document.createElement("button");
+            toggleButton.textContent = "显示过去的聚会";
+            toggleButton.classList.add("btn", "btn-outline-secondary", "mb-3");
+            toggleButton.setAttribute("data-bs-toggle", "collapse");
+            toggleButton.setAttribute("data-bs-target", "#past-events");
+            toggleButton.setAttribute("aria-expanded", "false");
+            toggleButton.setAttribute("aria-controls", "past-events");
+
+            container.appendChild(toggleButton);
+            container.appendChild(pastEventsContainer);
+        }
+
+        function fetchAndRenderSchedule() {
+            showLoadingSpinner();
+            const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLycsW9Iqsh7iaAs2nGpx41gGwciNB050ER9pvLVstNhJzAX5tJrpDi_3ewUKXdSAx6wsNWoBqqq1Y/pub?gid=260755372&single=true&output=csv";
+
+            fetch(csvUrl)
+                .then(response => response.text())
+                .then(csvText => {
+                    Papa.parse(csvText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function (result) {
+                            generateSchedule(result.data);
+                            hideLoadingSpinner();
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching CSV:", error);
+                    hideLoadingSpinner();
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchAndRenderSchedule);
+    </script>
+</body>
+
+</html>
