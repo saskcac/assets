@@ -111,6 +111,14 @@
     </div>
 
     <script>
+        function sendHeight() {
+            var height = document.documentElement.scrollHeight;
+            window.parent.postMessage({ height: height }, "*");
+        }
+
+        window.onload = sendHeight;
+        window.onresize = sendHeight;
+
         function showLoadingSpinner() {
             document.getElementById("loadingSpinner").style.display = "flex";
         }
