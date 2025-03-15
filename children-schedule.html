@@ -112,7 +112,7 @@
 
     <script>
         function sendHeight() {
-            var height = document.documentElement.scrollHeight;
+            var height = document.body.scrollHeight;
             window.parent.postMessage({ height: height }, "*");
         }
 
