@@ -113,7 +113,7 @@
     <script>
         function sendHeight() {
             var height = document.body.scrollHeight;
-            window.parent.postMessage({ height: height }, "*");
+            window.parent.postMessage({ height: (height + 100) }, "*");
         }
 
         window.onresize = sendHeight;
@@ -228,6 +228,11 @@
             toggleButton.setAttribute("data-bs-target", "#past-events");
             toggleButton.setAttribute("aria-expanded", "false");
             toggleButton.setAttribute("aria-controls", "past-events");
+
+            // Add event listener to trigger sendHeight on toggle
+            toggleButton.addEventListener("click", () => {
+                setTimeout(sendHeight, 500);
+            });
 
             container.appendChild(toggleButton);
             container.appendChild(pastEventsContainer);
