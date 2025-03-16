@@ -116,14 +116,6 @@
 
         window.onresize = sendHeight;
 
-        function showLoadingSpinner() {
-            document.getElementById("loadingSpinner").style.display = "flex";
-        }
-
-        function hideLoadingSpinner() {
-            document.getElementById("loadingSpinner").style.display = "none";
-        }
-
         function generateSchedule(data) {
             let container = document.querySelector("#schedule-container");
             if (!container) {
@@ -237,7 +229,6 @@
         }
 
         function fetchAndRenderSchedule() {
-            showLoadingSpinner();
             const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTqmx_-MiBjS3ap2pOrFQ9kcCbH8MqNafF0nWyOuFDf_TV21w7wYsYfOh9-AkDu1s_xZdVHKzu7wdWU/pub?gid=0&single=true&output=csv";
 
             fetch(csvUrl)
@@ -248,14 +239,12 @@
                         skipEmptyLines: true,
                         complete: function (result) {
                             generateSchedule(result.data);
-                            hideLoadingSpinner();
                             setTimeout(sendHeight, 500);
                         }
                     });
                 })
                 .catch(error => {
                     console.error("Error fetching CSV:", error);
-                    hideLoadingSpinner();
                 });
         }
 
