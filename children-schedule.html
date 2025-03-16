@@ -114,8 +114,6 @@
             window.parent.postMessage({ height: (height + 100) }, "*");
         }
 
-        window.onresize = sendHeight;
-
         function generateSchedule(data) {
             let container = document.querySelector("#schedule-container");
             if (!container) {
