@@ -193,10 +193,10 @@
                 praiseElement.innerHTML = `<strong>Praise:</strong> ${row["Praise"] || "—"}`;
 
                 let bibleStoryElement = document.createElement("p");
-                bibleStoryElement.innerHTML = `<strong>Bible Story:</strong> ${row["Bible Story"] || "—"}`;
+                bibleStoryElement.innerHTML = `<strong>Prayer/Story/Creative Activities:</strong> ${row["Activity Leader"] || "—"}`;
 
                 let creativeActivityElement = document.createElement("p");
-                creativeActivityElement.innerHTML = `<strong>Creative Activities:</strong> ${row["Creative Activities"] || "—"}`;
+                creativeActivityElement.innerHTML = `<strong>Activity Helper:</strong> ${row["Activity Helper"] || "—"}`;
 
                 div.appendChild(headerElement);
                 div.appendChild(praiseElement);
